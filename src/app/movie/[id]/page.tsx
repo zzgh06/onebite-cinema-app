@@ -1,9 +1,23 @@
 import style from "./page.module.css";
-import movies from "@/dummy.json";
 
-export default function Page() {
+export default async function Page({
+  params,
+}: {
+  params: { id: string | string[] };
+}) {
+  // 상세페이지의 정보는 변경되지 않기 때문에 force-cache 적용
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/movie/${params.id}`,
+    { cache: "force-cache" }
+  );
+
+  if (!response.ok) {
+    return <div>데이터를 불러오던 중에 오류가 발생했습니다...</div>;
+  }
+
+  const movie = await response.json();
+
   const {
-    id,
     title,
     subTitle,
     company,
@@ -12,7 +26,7 @@ export default function Page() {
     posterImgUrl,
     releaseDate,
     genres,
-  } = movies[3];
+  } = movie;
 
   return (
     <div className={style.container}>
