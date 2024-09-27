@@ -1,6 +1,5 @@
 import "./globals.css";
 import Link from "next/link";
-import style from "./layout.module.css";
 
 export default function RootLayout({
   children,
@@ -8,10 +7,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="kr" className="max-w-[800px] px-5 mx-auto">
       <body>
-        <div className={style.container}>
-          <header>
+        <div>
+          <header className="py-[15px] text-[1.5rem] text-[red] font-bold">
             <Link href={"/"}>ONEBITE CINEMA</Link>
           </header>
           <main>{children}</main>

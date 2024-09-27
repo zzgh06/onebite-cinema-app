@@ -1,5 +1,4 @@
 import MovieItem from "@/components/movie-item";
-import style from "./page.module.css";
 import { MovieData } from "@/types";
 
 async function AllMovie() {
@@ -13,7 +12,7 @@ async function AllMovie() {
   }
   const allMovies: MovieData[] = await response.json();
   return (
-    <div className={style.all_container}>
+    <div className="grid grid-cols-5 gap-[5px]">
       {allMovies.map((movie) => (
         <MovieItem key={`all-${movie.id}`} {...movie} />
       ))}
@@ -32,7 +31,7 @@ async function RecoMovie() {
   }
   const recoMovies: MovieData[] = await response.json();
   return (
-    <div className={style.reco_container}>
+    <div className="grid grid-cols-3 gap-[5px]">
       {recoMovies.map((movie) => (
         <MovieItem key={`reco-${movie.id}`} {...movie} />
       ))}
@@ -42,13 +41,13 @@ async function RecoMovie() {
 
 export default function Home() {
   return (
-    <div className={style.conatiner}>
+    <div className="flex flex-col gap-[50px]">
       <section>
-        <h3>지금 가장 추천하는 영화</h3>
+        <h3 className="text-[1.3rem] font-bold mb-3">지금 가장 추천하는 영화</h3>
         <RecoMovie />
       </section>
       <section>
-        <h3>등록된 모든 영화</h3>
+        <h3 className="text-[1.3rem] font-bold mb-3">등록된 모든 영화</h3>
         <AllMovie />
       </section>
     </div>
