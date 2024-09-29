@@ -1,8 +1,11 @@
 import MovieItem from "@/components/movie-item";
+import MovieListSkeleton from "@/components/skeleton/movie-list-skeleton";
 import { MovieData } from "@/types";
+import { delay } from "@/util/delay";
+import { Suspense } from "react";
 
 async function AllMovie() {
-  // 전체 영화 데이터는 변화가 없으므로 force-cache 적용
+  await delay(1500);
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_SERVER_URL}/movie`,
     { cache: "force-cache" }
@@ -21,7 +24,7 @@ async function AllMovie() {
 }
 
 async function RecoMovie() {
-  // 3초마다 추천 영화 변경하기 위해 revalidate 적용
+  await delay(3000);
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_SERVER_URL}/movie/random`,
     { next: { revalidate: 3 } }
@@ -39,16 +42,30 @@ async function RecoMovie() {
   );
 }
 
+export const dynamic = "force-dynamic"
+
 export default function Home() {
   return (
     <div className="flex flex-col gap-[50px]">
       <section>
         <h3 className="text-[1.3rem] font-bold mb-3">지금 가장 추천하는 영화</h3>
-        <RecoMovie />
+        <Suspense fallback={
+          <div className="grid grid-cols-3 gap-[5px]">
+            <MovieListSkeleton count={3} size="recoMovie" />
+          </div>
+        }>
+          <RecoMovie />
+        </Suspense>
       </section>
       <section>
         <h3 className="text-[1.3rem] font-bold mb-3">등록된 모든 영화</h3>
-        <AllMovie />
+        <Suspense fallback={
+          <div className="grid grid-cols-5 gap-[5px]">
+            <MovieListSkeleton count={18} size="allMovie" />
+          </div>
+        }>
+          <AllMovie />
+        </Suspense>
       </section>
     </div>
   );
