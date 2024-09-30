@@ -1,4 +1,6 @@
-import { MovieData } from "@/types";
+import ReviewEditor from "@/components/review-editor";
+import ReviewItem from "@/components/review-item";
+import { MovieData, ReviewData } from "@/types";
 import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
@@ -7,13 +9,9 @@ export async function generateStaticParams() {
   return movies.map(({ id }) => ({ id: id.toString() }));
 }
 
-export default async function Page({
-  params,
-}: {
-  params: { id: string | string[] };
-}) {
+async function MovieDetail({ movieId }: { movieId: string }) {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/movie/${params.id}`,
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/movie/${movieId}`,
     { cache: "force-cache" }
   );
   if (response.status === 404) {
@@ -38,7 +36,7 @@ export default async function Page({
   } = movie;
 
   return (
-    <div className="flex flex-col gap-[10px]">
+    <section className="flex flex-col gap-[15px]">
       <div
         className="relative flex justify-center p-[20px] bg-center bg-no-repeat bg-cover cover_img_container"
         style={{ backgroundImage: `url('${posterImgUrl}')` }}
@@ -47,7 +45,7 @@ export default async function Page({
           className="absolute inset-0 bg-black bg-opacity-70"
           aria-hidden="true"
         ></div>
-        <img src={posterImgUrl}  className="z-10 max-h-[350px] h-[100%]" />
+        <img src={posterImgUrl} className="z-10 max-h-[350px] h-[100%]" />
       </div>
       <div className="flex flex-col gap-[20px]">
         <div className="flex flex-col gap-[10px]">
@@ -59,9 +57,36 @@ export default async function Page({
         </div>
         <div>
           <div className="font-bold pb-[10px]">{subTitle}</div>
-          <div className="leading-6">{description}</div>
+          <div className="leading-6 pb-[30px]">{description}</div>
         </div>
       </div>
-    </div>
+    </section>
   );
+}
+
+async function MovieList({ movieId }: { movieId: string }){
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_SERVER_URL}/review/movie/${movieId}`)
+  if(!response.ok) {
+    throw new Error(`Review fetch failed : ${response.statusText}`);
+  }
+  const reviews: ReviewData[] = await response.json()
+  return (
+    <section>
+      {reviews.map((review) => <ReviewItem key={`review-item-${movieId}`} {...review} />)}
+    </section>
+  )
+}
+
+export default function Page({
+  params,
+}: {
+  params: { id: string };
+}) {
+  return (
+    <div className="flex-col gap-[50px]">
+      <MovieDetail movieId={params.id} />
+      <ReviewEditor movieId={params.id} />
+      <MovieList  movieId={params.id} />
+    </div>
+  )
 }
