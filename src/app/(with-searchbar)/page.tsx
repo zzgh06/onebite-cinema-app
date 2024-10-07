@@ -1,11 +1,8 @@
 import MovieItem from "@/components/movie-item";
-import MovieListSkeleton from "@/components/skeleton/movie-list-skeleton";
 import { MovieData } from "@/types";
-import { delay } from "@/util/delay";
-import { Suspense } from "react";
+import { Metadata } from "next";
 
 async function AllMovie() {
-  await delay(1500);
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_SERVER_URL}/movie`,
     { cache: "force-cache" }
@@ -17,14 +14,13 @@ async function AllMovie() {
   return (
     <div className="grid grid-cols-5 gap-[5px]">
       {allMovies.map((movie) => (
-        <MovieItem key={`all-${movie.id}`} {...movie} />
+        <MovieItem key={`all-${movie.id}`} size="allMovie" {...movie} />
       ))}
     </div>
   );
 }
 
 async function RecoMovie() {
-  await delay(3000);
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_SERVER_URL}/movie/random`,
     { next: { revalidate: 3 } }
@@ -36,36 +32,32 @@ async function RecoMovie() {
   return (
     <div className="grid grid-cols-3 gap-[5px]">
       {recoMovies.map((movie) => (
-        <MovieItem key={`reco-${movie.id}`} {...movie} />
+        <MovieItem key={`reco-${movie.id}`} size="recoMovie" {...movie} />
       ))}
     </div>
   );
 }
 
-export const dynamic = "force-dynamic"
+export const metadata: Metadata = {
+  title: "한입 시네마",
+  description: "한입 시네마에서 최신 영화와 리뷰를 확인하세요 ",
+  openGraph: {
+    title: "한입 시네마",
+    description: "한입 시네마에서 최신 영화와 리뷰를 확인하세요 ",
+    images: ["/thumbnail.png"],
+  },
+};
 
 export default function Home() {
   return (
     <div className="flex flex-col gap-[50px]">
       <section>
         <h3 className="text-[1.3rem] font-bold mb-3">지금 가장 추천하는 영화</h3>
-        <Suspense fallback={
-          <div className="grid grid-cols-3 gap-[5px]">
-            <MovieListSkeleton count={3} size="recoMovie" />
-          </div>
-        }>
-          <RecoMovie />
-        </Suspense>
+        <RecoMovie />
       </section>
       <section>
         <h3 className="text-[1.3rem] font-bold mb-3">등록된 모든 영화</h3>
-        <Suspense fallback={
-          <div className="grid grid-cols-5 gap-[5px]">
-            <MovieListSkeleton count={18} size="allMovie" />
-          </div>
-        }>
-          <AllMovie />
-        </Suspense>
+        <AllMovie />
       </section>
     </div>
   );
